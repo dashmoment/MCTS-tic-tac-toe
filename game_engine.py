@@ -12,10 +12,11 @@ RED   = (255,   0,   0)
 class game_engine:
 
 	def __init__(self):
-		
+		pyg.init()
 		self.screen = pyg.display.set_mode((600,600))
 		self.display = pyg.display.set_caption("tic tac toe")
 		self.clock = pyg.time.Clock()
+		self.font = pyg.font.SysFont('Arial', 48)
 		self.isExecute = True
 		self.player = 'o'
 		self.chessboard = [ [0,0,0],
@@ -31,7 +32,8 @@ class game_engine:
 			elif e.type == pyg.MOUSEBUTTONDOWN:
 				self.play(e.pos)
 
-		pyg.display.update()
+		
+		
 
 	def draw(self):
 
@@ -47,7 +49,6 @@ class game_engine:
 
 		#Draw play statue
 
-
 		for i in range(3):
 			for j in range(3):
 
@@ -59,7 +60,29 @@ class game_engine:
 				elif self.chessboard[i][j] == 2:
 					pyg.draw.line(self.screen, RED, [cx -30, cy - 30], [cx + 30, cy + 30], 5)
 					pyg.draw.line(self.screen, RED, [cx + 30, cy- 30], [cx - 30, cy + 30], 5)
-		print(self.judge_winner())
+
+		pyg.display.update()
+
+		results = self.judge_winner()
+
+		if results:
+			start_ticks=pyg.time.get_ticks()
+
+			while True:
+
+				self.screen.fill((30,30,30))
+				seconds=(pyg.time.get_ticks()-start_ticks)/1000
+				input_box = pyg.Rect(160, 250, 200, 200)
+				txt_surface = self.font.render("Winner is: {}".format(results), True, RED)
+				self.screen.blit(txt_surface, (input_box.x+5, input_box.y+5))
+				pyg.display.update()
+
+				if seconds > 3: 
+					self.chessboard = [ [0,0,0],
+						    [0,0,0],
+						    [0,0,0] ]
+					break 
+
 
 
 
@@ -76,24 +99,24 @@ class game_engine:
 					return player
 
 		# Check for winning vertical lines
-		for col in range(3):
-			accum = 0
-			for row in range(3):
-				if self.chessboard[row][col] == player:
-					accum += 1
-			if accum == 3:
-				return player		
+			for col in range(3):
+				accum = 0
+				for row in range(3):
+					if self.chessboard[row][col] == player:
+						accum += 1
+				if accum == 3:
+					return player		
 
-		# Check for winning diagonal lines (there are 2 possibilities)
-		option1 = [self.chessboard[0][0],
-		           self.chessboard[1][1],
-		           self.chessboard[2][2]]
-		option2 = [self.chessboard[2][0],
-		           self.chessboard[1][1],
-		           self.chessboard[0][2]]
-		if all(marker == player for marker in option1) \
-		        or all(marker == player for marker in option2):
-			return player
+			# Check for winning diagonal lines (there are 2 possibilities)
+			option1 = [self.chessboard[0][0],
+			           self.chessboard[1][1],
+			           self.chessboard[2][2]]
+			option2 = [self.chessboard[2][0],
+			           self.chessboard[1][1],
+			           self.chessboard[0][2]]
+			if all(marker == player for marker in option1) \
+			        or all(marker == player for marker in option2):
+				return player
 
         # Check for ties, defined as a board arrangement in which there are no
         # open board positions left and there are no winners (note that the
@@ -102,12 +125,10 @@ class game_engine:
 		accum = 0
 		for row in range(3):
 			for col in range(3):
-				if self.chessboard[row][col] == ' ':
+				if self.chessboard[row][col] == 0:
 					accum += 1
 		if accum == 0:
 			return 'Tie'
-
-		return None
 
 
 
@@ -130,7 +151,6 @@ class game_engine:
 				self.chessboard[loc_x][loc_y] = 2
 				self.player = "o"
 
-			print(self.chessboard[loc_x][loc_y])
 
 	def engine_mainlooep(self):
 
