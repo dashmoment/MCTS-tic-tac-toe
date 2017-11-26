@@ -161,5 +161,4 @@ class game_engine:
 		pyg.quit()
 
 
-b_end = game_engine()
-b_end.engine_mainlooep()
+
